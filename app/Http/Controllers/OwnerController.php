@@ -36,15 +36,30 @@ class OwnerController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Store a newly created resource (POST) in storage.
      */
     public function store(Request $request)
     {
-        // Return a JSON placeholder - It will be implemented later with the views - (TO BE UPDATED LATER)
-        return response()->json([
-            'message' => 'Store logic will be implemented later',
-            'received_data' => $request->all()
+        // Validate incoming request data
+        $validated = $request->validate([
+            'name' => 'required|string|max:100',
+            'dni' => 'required|string|regex:/^([0-9]{8}|[XYZ][0-9]{7})[TRWAGMYFPDXBNJZSQVHLCKE]$/i|unique:owners,dni',
+            'email' => 'required|email|max:100|unique:owners,email',
+            'phone' => 'required|string|max:20',
+            'address' => 'required|string|max:250',
+            'city' => 'required|string|max:100',
+            'postal_code' => 'required|string|max:10',
+            'province' => 'required|string|max:100',
         ]);
+
+        // Create the owner (DNI will be auto-uppercased by model mutator)
+        $owner = Owner::create($validated);
+
+        // Return success response with created owner
+        return response()->json([
+            'message' => 'Owner created successfully',
+            'owner' => $owner
+        ], 201); // 201 New Record - OK
     }
 
     /**
@@ -79,12 +94,27 @@ class OwnerController extends Controller
      */
     public function update(Request $request, Owner $owner)
     {
-        // Return a JSON placeholder - It will be implemented later with the views - (TO BE UPDATED LATER)
-        return response()->json([
-            'message' => 'Update logic will be implemented later',
-            'owner_id' => $owner->id,
-            'received_data' => $request->all()
+        // Validate incoming request data
+        // Note: unique validation must ignore current owner's record
+        $validated = $request->validate([
+            'name' => 'required|string|max:100',
+            'dni' => 'required|string|regex:/^([0-9]{8}|[XYZ][0-9]{7})[TRWAGMYFPDXBNJZSQVHLCKE]$/i|unique:owners,dni,' . $owner->id,
+            'email' => 'required|email|max:100|unique:owners,email,' . $owner->id,
+            'phone' => 'required|string|max:20',
+            'address' => 'required|string|max:250',
+            'city' => 'required|string|max:100',
+            'postal_code' => 'required|string|max:10',
+            'province' => 'required|string|max:100',
         ]);
+
+        // Update the owner (DNI will be auto-uppercased by model mutator)
+        $owner->update($validated);
+
+        // Return success response with updated owner
+        return response()->json([
+            'message' => 'Owner updated successfully',
+            'owner' => $owner->fresh() // Reload to get updated data
+        ], 200); //Updated record - OK
     }
 
     /**
@@ -92,10 +122,24 @@ class OwnerController extends Controller
      */
     public function destroy(Owner $owner)
     {
-        // Return a JSON placeholder - It will be implemented later with the views - (TO BE UPDATED LATER)
+        // Check if owner has properties (cascade delete protection)
+        $propertiesCount = $owner->properties()->count();
+
+        if ($propertiesCount > 0) {
+            return response()->json([
+                'message' => 'Cannot delete owner with existing properties',
+                'error' => "This owner has {$propertiesCount} propert" . ($propertiesCount === 1 ? 'y' : 'ies') . ". Please delete or reassign them first.",
+                'properties_count' => $propertiesCount
+            ], 409); // 409 Business Logic - Conflict
+        }
+
+        // Safe to delete - no dependent records
+        $ownerName = $owner->name;
+        $owner->delete();
+
         return response()->json([
-        'message' => 'Delete logic will be implemented later',
-        'owner_id' => $owner->id
-        ]);
+            'message' => 'Owner deleted successfully',
+            'deleted_owner' => $ownerName
+        ], 200); //Deleted record- OK
     }
 }

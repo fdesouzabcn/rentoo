@@ -43,11 +43,58 @@ class ContractController extends Controller
      */
     public function store(Request $request)
     {
-        // Return a JSON placeholder - It will be implemented later with the views - (TO BE UPDATED LATER)
-        return response()->json([
-            'message' => 'Store logic will be implemented later',
-            'received_data' => $request->all()
+        // Validate incoming request data
+        $validated = $request->validate([
+            // Foreign key (FK)
+            'property_id' => 'required|uuid|exists:properties,id',
+
+            // Contract Specific Details
+            'status' => 'required|in:draft,active,finalized',
+            'start_date' => 'required|date|after_or_equal:today',
+            'end_date' => 'nullable|date|after:start_date',
+
+            'monthly_rent' => 'required|numeric|min:0|max:999999.99',
+            'legal_deposit' => 'required|numeric|min:0|max:999999.99',
+            'additional_deposit' => 'nullable|numeric|min:0|max:999999.99',
+
+            'tenant_pays_ibi' => 'boolean',
+            'tenant_pays_community_fees' => 'boolean',
+            'tenant_pays_garbage_fees' => 'boolean',
+
+            'irpa_value' => 'nullable|numeric|min:0|max:999999.99',
+            'is_tensioned_area' => 'boolean',
+
+            // Tenants
+            'tenant1_name' => 'required|string|max:100',
+            'tenant1_dni' => [
+                'required',
+                'string',
+                'regex:/^([0-9]{8}|[XYZ][0-9]{7})[TRWAGMYFPDXBNJZSQVHLCKE]$/i'
+            ],
+            'tenant1_email' => 'required|email|max:100',
+            'tenant1_phone' => 'required|string|max:20',
+            'tenant2_name' => 'nullable|string|max:100',
+            'tenant2_dni' => [
+                'nullable',
+                'string',
+                'regex:/^([0-9]{8}|[XYZ][0-9]{7})[TRWAGMYFPDXBNJZSQVHLCKE]$/i',
+                'required_with:tenant2_name'
+            ],
+            'tenant2_email' => 'nullable|email|max:100',
+            'tenant2_phone' => 'nullable|string|max:20',
         ]);
+
+        // Create the contract (tenant DNIs will be auto-uppercased)
+        $contract = Contract::create($validated);
+
+        // Load relationships for response
+        $contract->load('property.owner');
+
+        // Return success response with created contract
+        return response()->json([
+            'message' => 'Contract created successfully',
+            'contract' => $contract
+        ], 201);
     }
 
     /**
@@ -83,12 +130,59 @@ class ContractController extends Controller
      */
     public function update(Request $request, Contract $contract)
     {
-        // Return a JSON placeholder - It will be implemented later with the views - (TO BE UPDATED LATER)
-        return response()->json([
-            'message' => 'Update logic will be implemented later',
-            'contract_id' => $contract->id,
-            'received_data' => $request->all()
+        // Validate incoming request data
+        $validated = $request->validate([
+            // Foreign key
+            'property_id' => 'required|uuid|exists:properties,id',
+
+            // Contract Specific Details
+            'status' => 'required|in:draft,active,finalized',
+            'start_date' => 'required|date',
+            'end_date' => 'nullable|date|after:start_date',
+
+            'monthly_rent' => 'required|numeric|min:0|max:999999.99',
+            'legal_deposit' => 'required|numeric|min:0|max:999999.99',
+            'additional_deposit' => 'nullable|numeric|min:0|max:999999.99',
+
+            'tenant_pays_ibi' => 'boolean',
+            'tenant_pays_community_fees' => 'boolean',
+            'tenant_pays_garbage_fees' => 'boolean',
+
+            'irpa_value' => 'nullable|numeric|min:0|max:999999.99',
+            'is_tensioned_area' => 'boolean',
+
+            // Tenants
+            'tenant1_name' => 'required|string|max:100',
+            'tenant1_dni' => [
+                'required',
+                'string',
+                'regex:/^([0-9]{8}|[XYZ][0-9]{7})[TRWAGMYFPDXBNJZSQVHLCKE]$/i'
+            ],
+            'tenant1_email' => 'required|email|max:100',
+            'tenant1_phone' => 'required|string|max:20',
+
+            'tenant2_name' => 'nullable|string|max:100',
+            'tenant2_dni' => [
+                'nullable',
+                'string',
+                'regex:/^([0-9]{8}|[XYZ][0-9]{7})[TRWAGMYFPDXBNJZSQVHLCKE]$/i',
+                'required_with:tenant2_name'
+            ],
+            'tenant2_email' => 'nullable|email|max:100',
+            'tenant2_phone' => 'nullable|string|max:20',
         ]);
+
+        // Update the contract
+        $contract->update($validated);
+
+        // Load relationships for response
+        $contract->load('property.owner');
+
+        // Return success response with updated contract
+        return response()->json([
+            'message' => 'Contract updated successfully',
+            'contract' => $contract->fresh(['property.owner'])
+        ], 200);
     }
 
     /**
@@ -96,10 +190,13 @@ class ContractController extends Controller
      */
     public function destroy(Contract $contract)
     {
-        // Return a JSON placeholder - It will be implemented later with the views - (TO BE UPDATED LATER)
+        // Safe to delete
+        $contractId = $contract->id;
+        $contract->delete();
+
         return response()->json([
-            'message' => 'Delete logic will be implemented later',
-            'contract_id' => $contract->id
-        ]);
+            'message' => 'Contract deleted successfully',
+            'deleted_contract_id' => $contractId
+        ], 200);
     }
 }
