@@ -16,15 +16,20 @@ class PropertyController extends Controller
     {
         // Find all properties from database, ordered by city then address
         $properties = Property::with('owner')
-            ->orderBy('city')
-            ->orderBy('address')
+            ->withCount('contracts')
+            ->orderBy('city','asc')
             ->get();
 
-        // Return as JSON for now - It will be implemented later with the views - (TO BE UPDATED LATER)
-        return response()->json([
-            'total' => $properties->count(),
-            'properties' => $properties
-        ]);
+        // Api route - return JSON
+        if (request()->is('api/*')){
+            return response()->json([
+                'total' => $properties->count(),
+                'properties' => $properties
+            ]);
+        }
+
+        // Web route - return Blade view
+        return view ('properties.index', compact('properties'));
     }
 
     /**
@@ -96,12 +101,17 @@ class PropertyController extends Controller
         // Load owners and contracts relationship
         $property->load ('owner','contracts');
 
-        // Return as JSON for now - It will be implemented later with the views - (TO BE UPDATED LATER)
-        return response()->json([
+        // API route - return JSON
+        if (request()->is('api/*')){
+            return response()->json([
             'property' => $property,
             'owner' => $property->owner,
             'contracts_count' => $property->contracts->count()
-        ]);
+            ]);
+        }
+
+        // Web route - return Blade view
+        return view('properties.show', compact('property'));
     }
 
     /**
