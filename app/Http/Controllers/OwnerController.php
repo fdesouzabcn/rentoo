@@ -14,14 +14,21 @@ class OwnerController extends Controller
      */
     public function index()
     {
-        //Find all owners from database, ordered by name
-        $owners = Owner::orderBy('name','asc')->get();
+        //Find all owners from database, ordered by name, with properties count
+        $owners = Owner::withCount('properties')
+            ->orderBy('name', 'asc')
+            ->get();
 
-        // Return as JSON for now - It will be implemented later with the views - (TO BE UPDATED LATER)
-        return response()->json([
-            'total' => $owners->count(),
-            'owners' => $owners
-        ]);
+        // API route - return JSON
+        if (request()->is('api/*')) {
+            return response()->json([
+                'total' => $owners->count(),
+                'owners' => $owners
+            ]);
+        }
+
+        // Web route - return Blade view
+        return view('owners.index', compact('owners'));
     }
 
     /**
@@ -70,11 +77,16 @@ class OwnerController extends Controller
         // Load owners properties
         $owner->load ('properties');
 
-        // Return as JSON for now - It will be implemented later with the views - (TO BE UPDATED LATER)
-        return response()->json([
-            'owner' => $owner,
-            'properties_count' => $owner->properties->count()
-        ]);
+        // API route - return JSON
+        if (request()->is('api/*')) {
+            return response()->json([
+                'owner' => $owner,
+                'properties_count' => $owner->properties->count()
+            ]);
+        }
+
+        // Web route - return Blade view
+        return view('owners.show', compact('owner'));
     }
 
     /**
