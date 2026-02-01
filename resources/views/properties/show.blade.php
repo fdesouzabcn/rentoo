@@ -273,15 +273,20 @@
                             </h3>
 
                             {{-- Status Badge --}}
-                            @if($contract->status === 'DRAFT')
+                            <x-status-badge :status="$contract->status" />
+                            {{-- @if($contract->status === 'draft')
                                 <span class="px-3 py-1 bg-yellow-100 text-yellow-800 text-xs font-semibold rounded-full">
                                     BORRADOR
                                 </span>
-                            @elseif($contract->status === 'FINALIZED')
+                            @elseif($contract->status === 'active')
                                 <span class="px-3 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full">
+                                    ACTIVO
+                                </span>
+                            @elseif($contract->status === 'finalized')
+                                <span class="px-3 py-1 bg-gray-200 text-gray-800 text-xs font-semibold rounded-full">
                                     FINALIZADO
                                 </span>
-                            @endif
+                            @endif --}}
                         </div>
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
