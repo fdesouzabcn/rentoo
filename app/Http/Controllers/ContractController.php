@@ -20,11 +20,16 @@ class ContractController extends Controller
             ->orderByDesc('start_date')
             ->get();
 
-        // Return as JSON for now - It will be implemented later with the views - (TO BE UPDATED LATER)
-        return response()->json([
-            'total' => $contracts->count(),
-            'contracts' => $contracts
-        ]);
+         // Api route - return JSON
+        if (request()->is('api/*')){
+            return response()->json([
+                'total' => $contracts->count(),
+                'contracts' => $contracts
+            ]);
+        }
+
+        // Web route - return Blade view
+        return view ('contracts.index', compact('contracts'));
     }
 
     /**
@@ -105,12 +110,17 @@ class ContractController extends Controller
         // Load property and owner relationship
         $contract->load ('property.owner');
 
-        // Return as JSON for now - It will be implemented later with the views - (TO BE UPDATED LATER)
-        return response()->json([
-            'contract' => $contract,
-            'property' => $contract->property,
-            'owner' => $contract->property->owner
-        ]);
+        // Api route - return JSON
+        if (request()->is('*api/*')){
+            return response()->json([
+                'contract' => $contract,
+                'property' => $contract->property,
+                'owner' => $contract->property->owner
+            ]);
+        }
+
+        // Web route - return Blade view
+        return view ('contracts.show', compact('contract'));
     }
 
     /**
