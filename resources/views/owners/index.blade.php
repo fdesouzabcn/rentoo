@@ -3,6 +3,9 @@
 @section('title', 'Propietarios - Rentoo')
 
 @section('content')
+    {{-- Flash Messages --}}
+    <x-flash-message />
+
     {{-- Page Header --}}
     <div class="flex justify-between items-center mb-8">
         <div>
@@ -12,7 +15,14 @@
             </p>
         </div>
 
-        {{-- Future: Add "Nuevo Propietario" button/CTA--}}
+        {{-- Create New Button --}}
+        <a href="{{ route('owners.create') }}"
+        class="inline-flex items-center px-6 py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors shadow-sm hover:shadow-md">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+            Crear Nuevo Propietario
+        </a>
     </div>
 
     {{-- Owners Grid --}}
@@ -42,17 +52,6 @@
             <p class="text-slate-600 mb-6">
                 Comienza agregando el primer propietario al sistema
             </p>
-
-            {{-- Uncomment when create form exists --}}
-            {{--
-            <a href="{{ route('owners.create') }}"
-               class="inline-flex items-center px-6 py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                </svg>
-                Crear Propietario
-            </a>
-            --}}
         </div>
     @endforelse
 @endsection

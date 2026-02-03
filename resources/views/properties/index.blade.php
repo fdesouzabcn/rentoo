@@ -3,6 +3,9 @@
 @section('title', 'Propiedades - Rentoo')
 
 @section('content')
+    {{-- Flash Messages --}}
+    <x-flash-message />
+
     {{-- Page Header --}}
     <div class="flex justify-between items-center mb-8">
         <div>
@@ -12,7 +15,14 @@
             </p>
         </div>
 
-        {{-- Add "Crear Nueva Propiedad" button --}}
+        {{-- Create New Button --}}
+        <a href="{{ route('properties.create') }}"
+        class="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors shadow-sm hover:shadow-md">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+        Crear Nueva Propiedad
+        </a>
     </div>
 
     {{-- Properties Grid --}}
@@ -42,17 +52,6 @@
             <p class="text-slate-600 mb-6">
                 Comienza agregando la primera propiedad al sistema
             </p>
-
-            {{-- Uncomment when create form exists --}}
-            {{--
-            <a href="{{ route('properties.create') }}"
-               class="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                </svg>
-                Crear Propiedad
-            </a>
-            --}}
         </div>
     @endforelse
 @endsection

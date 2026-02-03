@@ -3,6 +3,9 @@
 @section('title', $property->address . ' - Propiedades - Rentoo')
 
 @section('content')
+    {{-- Flash Messages --}}
+    <x-flash-message />
+
     {{-- Action Buttons --}}
     <div class="flex flex-wrap gap-3 mb-6">
         <a href="{{ route('properties.index') }}"
@@ -13,9 +16,28 @@
             Volver a Propiedades
         </a>
 
-        {{-- Add Edit and Delete buttons --}}
+        <a href="{{ route('properties.edit', $property) }}"
+        class="inline-flex items-center px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+            </svg>
+            Editar
+        </a>
 
+        <button onclick="confirmDelete()"
+                class="inline-flex items-center px-4 py-2 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition-colors">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+            </svg>
+            Eliminar
+        </button>
     </div>
+
+    {{-- Hidden Delete Form --}}
+    <form id="delete-form" action="{{ route('properties.destroy', $property) }}" method="POST" class="hidden">
+        @csrf
+        @method('DELETE')
+    </form>
 
     {{-- Property Details Card --}}
     <div class="bg-white rounded-lg shadow-md p-8 mb-8">
@@ -90,11 +112,6 @@
                     <div>
                         <dt class="text-sm font-medium text-slate-600">Baños</dt>
                         <dd class="text-base text-slate-900 mt-1">{{ $property->bathrooms }} {{ $property->bathrooms === 1 ? 'baño' : 'baños' }}</dd>
-                    </div>
-
-                    <div>
-                        <dt class="text-sm font-medium text-slate-600">Planta</dt>
-                        <dd class="text-base text-slate-900 mt-1">{{ $property->floor }}</dd>
                     </div>
                 </dl>
             </div>
@@ -228,10 +245,15 @@
             Información Financiera
         </h2>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
             <div>
-                <dt class="text-sm font-medium text-slate-600 mb-1">IBI Anual</dt>
+                <dt class="text-sm font-medium text-slate-600 mb-1">IBI (anual)</dt>
                 <dd class="text-2xl font-bold text-slate-900">{{ number_format($property->ibi_annual_amount, 2, ',', '.') }} €</dd>
+            </div>
+
+            <div>
+                <dt class="text-sm font-medium text-slate-600 mb-1">Tasa de Basura (anual)</dt>
+                <dd class="text-2xl font-bold text-slate-900">{{ number_format($property->garbage_fees_annual, 2, ',', '.') }} €</dd>
             </div>
 
             <div>
@@ -240,20 +262,31 @@
             </div>
 
             <div>
-                <dt class="text-sm font-medium text-slate-600 mb-1">Tasa de Basura (anual)</dt>
-                <dd class="text-2xl font-bold text-slate-900">{{ number_format($property->garbage_fees_annual, 2, ',', '.') }} €</dd>
+                <dt class="text-sm font-medium text-slate-600 mb-1">Ultimo Alquiler (mensual)</dt>
+                <dd class="text-2xl font-bold text-slate-900">{{ number_format($property->last_rent_amount, 2, ',', '.') }} €</dd>
             </div>
         </div>
     </div>
 
     {{-- Contracts Section --}}
     <div class="bg-white rounded-lg shadow-md p-8">
-        <h2 class="text-2xl font-semibold text-slate-900 mb-6 flex items-center gap-2">
-            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-            </svg>
-            Contratos ({{ $property->contracts->count() }})
-        </h2>
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-semibold text-slate-900 flex items-center gap-2">
+                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                Contratos ({{ $property->contracts->count() }})
+            </h2>
+
+            {{-- Action Button - Create Contract--}}
+            <a href="{{ route('contracts.create', ['property_id' => $property->id]) }}"
+            class="inline-flex items-center px-4 py-2 bg-purple-600 text-white font-medium rounded-lg hover:bg-purple-700 transition-colors">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                </svg>
+                Crear Nuevo Contrato
+            </a>
+        </div>
 
         @forelse($property->contracts as $contract)
             @if($loop->first)
@@ -274,19 +307,6 @@
 
                             {{-- Status Badge --}}
                             <x-status-badge :status="$contract->status" />
-                            {{-- @if($contract->status === 'draft')
-                                <span class="px-3 py-1 bg-yellow-100 text-yellow-800 text-xs font-semibold rounded-full">
-                                    BORRADOR
-                                </span>
-                            @elseif($contract->status === 'active')
-                                <span class="px-3 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full">
-                                    ACTIVO
-                                </span>
-                            @elseif($contract->status === 'finalized')
-                                <span class="px-3 py-1 bg-gray-200 text-gray-800 text-xs font-semibold rounded-full">
-                                    FINALIZADO
-                                </span>
-                            @endif --}}
                         </div>
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
@@ -331,10 +351,35 @@
                     </svg>
                 </div>
 
-                <p class="text-slate-600 italic">
+                <p class="text-slate-600 italic mb-4">
                     Esta propiedad no tiene contratos registrados
                 </p>
+
+                <a href="{{ route('contracts.create', ['property_id' => $property->id]) }}"
+                class="inline-flex items-center px-4 py-2 bg-purple-600 text-white font-medium rounded-lg hover:bg-purple-700 transition-colors">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                    </svg>
+                    Crear Primer Contrato
+                </a>
             </div>
         @endforelse
     </div>
+
+{{-- Delete Confirmation Script --}}
+<script>
+function confirmDelete() {
+    const propertyAddress = "{{ $property->address }}";
+    const contractsCount = {{ $property->contracts()->count() }};
+
+    if (contractsCount > 0) {
+        alert(`No se puede eliminar esta propiedad porque tiene ${contractsCount} contrato${contractsCount === 1 ? '' : 's'}.\n\nPor favor, elimine los contratos primero.`);
+        return false;
+    }
+
+    if (confirm(`¿Estás seguro de que deseas eliminar la propiedad en "${propertyAddress}"?\n\nEsta acción no se puede deshacer.`)) {
+        document.getElementById('delete-form').submit();
+    }
+}
+</script>
 @endsection

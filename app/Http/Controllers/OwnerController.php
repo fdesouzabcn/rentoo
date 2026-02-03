@@ -36,10 +36,8 @@ class OwnerController extends Controller
      */
     public function create()
     {
-        // Return a JSON placeholder - It will be implemented later with the views - (TO BE UPDATED LATER)
-        return response()->json([
-            'message' => 'Create will be implemented later'
-        ]);
+        // Web route - return Blade view
+        return view('owners.create');
     }
 
     /**
@@ -50,7 +48,12 @@ class OwnerController extends Controller
         // Validate incoming request data
         $validated = $request->validate([
             'name' => 'required|string|max:100',
-            'dni' => 'required|string|regex:/^([0-9]{8}|[XYZ][0-9]{7})[TRWAGMYFPDXBNJZSQVHLCKE]$/i|unique:owners,dni',
+            'dni' => [
+            'required',
+            'string',
+            'regex:/^([0-9]{8}|[XYZ][0-9]{7})[TRWAGMYFPDXBNJZSQVHLCKE]$/i',
+            'unique:owners,dni'
+            ],
             'email' => 'required|email|max:100|unique:owners,email',
             'phone' => 'required|string|max:20',
             'address' => 'required|string|max:250',
@@ -62,11 +65,9 @@ class OwnerController extends Controller
         // Create the owner (DNI will be auto-uppercased by model mutator)
         $owner = Owner::create($validated);
 
-        // Return success response with created owner
-        return response()->json([
-            'message' => 'Owner created successfully',
-            'owner' => $owner
-        ], 201); // 201 New Record - OK
+        // Redirect to show page with success message
+        return redirect()->route('owners.show', $owner)
+        ->with('success', 'Propietario creado exitosamente');
     }
 
     /**
@@ -84,7 +85,6 @@ class OwnerController extends Controller
                 'properties_count' => $owner->properties->count()
             ]);
         }
-
         // Web route - return Blade view
         return view('owners.show', compact('owner'));
     }
@@ -93,13 +93,10 @@ class OwnerController extends Controller
      * Show the form for editing the specified resource.
      */
     public function edit(Owner $owner)
-    {
-        // Return a JSON placeholder - It will be implemented later with the views - (TO BE UPDATED LATER)
-        return response()->json([
-            'message' => 'Edit logic will be implemented later',
-            'owner' => $owner
-        ]);
-    }
+{
+    // Web route - return Blade view
+    return view('owners.edit', compact('owner'));
+}
 
     /**
      * Update the specified resource in storage.
@@ -110,7 +107,12 @@ class OwnerController extends Controller
         // Note: unique validation must ignore current owner's record
         $validated = $request->validate([
             'name' => 'required|string|max:100',
-            'dni' => 'required|string|regex:/^([0-9]{8}|[XYZ][0-9]{7})[TRWAGMYFPDXBNJZSQVHLCKE]$/i|unique:owners,dni,' . $owner->id,
+            'dni' => [
+            'required',
+            'string',
+            'regex:/^([0-9]{8}|[XYZ][0-9]{7})[TRWAGMYFPDXBNJZSQVHLCKE]$/i',
+            'unique:owners,dni,' . $owner->id
+            ],
             'email' => 'required|email|max:100|unique:owners,email,' . $owner->id,
             'phone' => 'required|string|max:20',
             'address' => 'required|string|max:250',
@@ -122,11 +124,9 @@ class OwnerController extends Controller
         // Update the owner (DNI will be auto-uppercased by model mutator)
         $owner->update($validated);
 
-        // Return success response with updated owner
-        return response()->json([
-            'message' => 'Owner updated successfully',
-            'owner' => $owner->fresh() // Reload to get updated data
-        ], 200); //Updated record - OK
+        // Redirect to show page with success message
+        return redirect()->route('owners.show', $owner)
+            ->with('success', 'Propietario actualizado exitosamente');
     }
 
     /**
@@ -138,20 +138,17 @@ class OwnerController extends Controller
         $propertiesCount = $owner->properties()->count();
 
         if ($propertiesCount > 0) {
-            return response()->json([
-                'message' => 'Cannot delete owner with existing properties',
-                'error' => "This owner has {$propertiesCount} propert" . ($propertiesCount === 1 ? 'y' : 'ies') . ". Please delete or reassign them first.",
-                'properties_count' => $propertiesCount
-            ], 409); // 409 Business Logic - Conflict
+            return redirect()->back()
+                ->with('error', "No se puede eliminar este propietario porque tiene {$propertiesCount} " .
+                       ($propertiesCount === 1 ? 'propiedad' : 'propiedades') . " registrada" .
+                       ($propertiesCount === 1 ? '' : 's') . ". Por favor, elimínelas primero.");
         }
 
         // Safe to delete - no dependent records
         $ownerName = $owner->name;
         $owner->delete();
 
-        return response()->json([
-            'message' => 'Owner deleted successfully',
-            'deleted_owner' => $ownerName
-        ], 200); //Deleted record- OK
+        return redirect()->route('owners.index')
+            ->with('success', "Propietario '{$ownerName}' eliminado exitosamente");
     }
 }
