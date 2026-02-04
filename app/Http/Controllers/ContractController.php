@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Models\Contract;
+use App\Models\Property;
 use Illuminate\Http\Request;
-
 
 class ContractController extends Controller
 {
@@ -35,14 +35,19 @@ class ContractController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(Request $request)
     {
-        // Return a JSON placeholder - It will be implemented later with the views - (TO BE UPDATED LATER)
-        return response()->json([
-            'message' => 'Create will be implemented later'
-        ]);
-    }
+        // Get all properties with their owners for dropdown
+        $properties = Property::with('owner')
+            ->orderBy('address', 'asc')
+            ->get();
 
+        // Check if property_id was passed via query string (?property_id=xxx)
+        $selectedPropertyId = $request->query('property_id');
+
+        return view('contracts.create', compact('properties', 'selectedPropertyId'));
+    }
+// ========================================================================================================
     /**
      * Store a newly created resource in storage.
      */
@@ -92,14 +97,9 @@ class ContractController extends Controller
         // Create the contract (tenant DNIs will be auto-uppercased)
         $contract = Contract::create($validated);
 
-        // Load relationships for response
-        $contract->load('property.owner');
-
-        // Return success response with created contract
-        return response()->json([
-            'message' => 'Contract created successfully',
-            'contract' => $contract
-        ], 201);
+        // Redirect to show page with success message
+        return redirect()->route('contracts.show', $contract)
+            ->with('success', 'Contrato creado exitosamente');
     }
 
     /**
@@ -128,11 +128,15 @@ class ContractController extends Controller
      */
     public function edit(Contract $contract)
     {
-        // Return a JSON placeholder - It will be implemented later with the views - (TO BE UPDATED LATER)
-        return response()->json([
-            'message' => 'Edit form will be implemented later',
-            'contract' => $contract
-        ]);
+        // Get all properties with their owners for dropdown
+        $properties = Property::with('owner')
+            ->orderBy('address', 'asc')
+            ->get();
+
+        // Load the contract's property and owner relationship
+        $contract->load('property.owner');
+
+        return view('contracts.edit', compact('contract', 'properties'));
     }
 
     /**
@@ -185,14 +189,9 @@ class ContractController extends Controller
         // Update the contract
         $contract->update($validated);
 
-        // Load relationships for response
-        $contract->load('property.owner');
-
-        // Return success response with updated contract
-        return response()->json([
-            'message' => 'Contract updated successfully',
-            'contract' => $contract->fresh(['property.owner'])
-        ], 200);
+        // Redirect to show page with success message
+        return redirect()->route('contracts.show', $contract)
+            ->with('success', 'Contrato actualizado exitosamente');
     }
 
     /**
@@ -204,9 +203,7 @@ class ContractController extends Controller
         $contractId = $contract->id;
         $contract->delete();
 
-        return response()->json([
-            'message' => 'Contract deleted successfully',
-            'deleted_contract_id' => $contractId
-        ], 200);
+        return redirect()->route('contracts.index')
+            ->with('success', 'Contrato borrador eliminado exitosamente');
     }
 }

@@ -3,11 +3,14 @@
 @section('title', 'Contrato - ' . $contract->property->address . ' - Rentoo')
 
 @section('content')
-    {{-- Action Buttons (hidden on print) --}}
+    {{-- Flash Messages --}}
+    <x-flash-message />
+
+    {{-- Form Actions --}}
     <div class="no-print mb-6 flex flex-wrap items-center justify-between gap-3">
         <div class="flex flex-wrap gap-3">
             <a href="{{ route('contracts.index') }}"
-               class="inline-flex items-center px-4 py-2 bg-slate-600 text-white font-medium rounded-lg hover:bg-slate-700 transition-colors">
+            class="inline-flex items-center px-4 py-2 bg-slate-600 text-white font-medium rounded-lg hover:bg-slate-700 transition-colors">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                 </svg>
@@ -22,18 +25,21 @@
                 Imprimir Contrato
             </button>
 
-            @if($contract->status === 'draft')
-                {{-- Add Edit button for drafts --}}
-                {{--
-                <a href="{{ route('contracts.edit', $contract) }}"
-                   class="inline-flex items-center px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors">
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                    </svg>
-                    Editar
-                </a>
-                --}}
-            @endif
+            <a href="{{ route('contracts.edit', $contract) }}"
+            class="inline-flex items-center px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                </svg>
+                Editar
+            </a>
+
+            <button onclick="confirmDelete()"
+                    class="inline-flex items-center px-4 py-2 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition-colors">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                </svg>
+                Eliminar
+            </button>
         </div>
 
         {{-- Status Badge --}}
@@ -42,6 +48,12 @@
             <x-status-badge :status="$contract->status" />
         </div>
     </div>
+
+    {{-- Hidden Delete Form --}}
+    <form id="delete-form" action="{{ route('contracts.destroy', $contract) }}" method="POST" class="hidden">
+        @csrf
+        @method('DELETE')
+    </form>
 
     {{-- Contract Document --}}
     <div class="contract-document bg-white shadow-lg rounded-lg p-12 max-w-4xl mx-auto" style="font-family: 'Times New Roman', Times, serif;">
@@ -304,7 +316,7 @@
             </p>
 
             <div class="grid grid-cols-2 gap-12 mt-12">
-                {{-- Arrendador --}}
+                {{-- Owner - Landlord --}}
                 <div class="text-center">
                     <div class="border-t border-slate-400 pt-2 mb-1">
                         <p class="font-bold text-sm">EL ARRENDADOR</p>
@@ -313,7 +325,7 @@
                     <p class="text-xs text-slate-600">DNI/NIE/TIE: {{ $contract->property->owner->dni }}</p>
                 </div>
 
-                {{-- Arrendatario(s) --}}
+                {{-- Tenant(s) --}}
                 <div class="text-center">
                     <div class="border-t border-slate-400 pt-2 mb-1">
                         <p class="font-bold text-sm">EL ARRENDATARIO{{ $contract->tenant2_name ? ' (1)' : '' }}</p>
@@ -333,7 +345,6 @@
                 </div>
                 @endif
             </div>
-        </div>
     </div>
 
     {{-- Print Styles --}}
@@ -379,4 +390,16 @@
             }
         }
     </style>
+
+{{-- Delete Confirmation Script --}}
+<script>
+function confirmDelete() {
+    const propertyAddress = "{{ $contract->property->address }}";
+    const tenant = "{{ $contract->tenant1_name }}";
+
+    if (confirm(`¿Estás seguro de que deseas eliminar este contrato?\n\nPropiedad: ${propertyAddress}\nInquilino: ${tenant}\n\nEsta acción no se puede deshacer.`)) {
+        document.getElementById('delete-form').submit();
+    }
+}
+</script>
 @endsection

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Models\Property;
+use App\Models\Owner;
 use Illuminate\Http\Request;
 
 class PropertyController extends Controller
@@ -35,12 +36,15 @@ class PropertyController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(Request $request)
     {
-        // Return a JSON placeholder - It will be implemented later with the views - (TO BE UPDATED LATER)
-        return response()->json([
-            'message' => 'Create will be implemented later'
-        ]);
+        // Get all owners ordered by name for dropdown
+        $owners = Owner::orderBy('name', 'asc')->get();
+
+        // Check if owner_id was passed via query string (?owner_id=xxx)
+        $selectedOwnerId = $request->query('owner_id');
+
+        return view('properties.create', compact('owners', 'selectedOwnerId'));
     }
 
     /**
@@ -83,14 +87,9 @@ class PropertyController extends Controller
         // Create the property
         $property = Property::create($validated);
 
-        // Load owner relationship for response
-        $property->load('owner');
-
-        // Return success response with created property
-        return response()->json([
-            'message' => 'Property created successfully',
-            'property' => $property
-        ], 201); // Created
+        // Redirect to show page with success message
+        return redirect()->route('properties.show', $property)
+            ->with('success', 'Propiedad creada exitosamente');
     }
 
     /**
@@ -119,11 +118,10 @@ class PropertyController extends Controller
      */
     public function edit(Property $property)
     {
-        // Return a JSON placeholder - It will be implemented later with the views - (TO BE UPDATED LATER)
-        return response()->json([
-            'message' => 'Edit logic will be implemented later',
-            'property' => $property
-        ]);
+        // Get all owners ordered by name for dropdown
+        $owners = Owner::orderBy('name', 'asc')->get();
+
+        return view('properties.edit', compact('property', 'owners'));
     }
 
     /**
@@ -165,14 +163,9 @@ class PropertyController extends Controller
         // Update the property
         $property->update($validated);
 
-        // Load owner relationship for response
-        $property->load('owner');
-
-        // Return success response with updated property
-        return response()->json([
-            'message' => 'Property updated successfully',
-            'property' => $property->fresh(['owner']) // Reload to get updated data
-        ], 200); // OK - successful
+        // Redirect to show page with success message
+        return redirect()->route('properties.show', $property)
+            ->with('success', 'Propiedad actualizada exitosamente');
     }
 
     /**
@@ -184,20 +177,17 @@ class PropertyController extends Controller
         $contractsCount = $property->contracts()->count();
 
         if ($contractsCount > 0) {
-            return response()->json([
-                'message' => 'Cannot delete property with existing contracts',
-                'error' => "This property has {$contractsCount} contract" . ($contractsCount === 1 ? '' : 's') . ". Please delete them first.",
-                'contracts_count' => $contractsCount
-            ], 409); // 409 Business Logic - Conflict
+            return redirect()->back()
+                ->with('error', "No se puede eliminar esta propiedad porque tiene {$contractsCount} " .
+                       ($contractsCount === 1 ? 'contrato' : 'contratos') . ". Por favor, elimínelo" .
+                       ($contractsCount === 1 ? '' : 's') . " primero.");
         }
 
         // Safe to delete - no dependent records
         $propertyAddress = $property->address;
         $property->delete();
 
-        return response()->json([
-            'message' => 'Property deleted successfully',
-            'deleted_property' => $propertyAddress
-        ], 200); // OK - successful
+        return redirect()->route('properties.index')
+            ->with('success', "Propiedad '{$propertyAddress}' eliminada exitosamente");
     }
 }

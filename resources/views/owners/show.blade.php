@@ -3,6 +3,9 @@
 @section('title', $owner->name . ' - Propietarios - Rentoo')
 
 @section('content')
+    {{-- Flash Messages --}}
+    <x-flash-message />
+
     {{-- Action Buttons --}}
     <div class="flex flex-wrap gap-3 mb-6">
         <a href="{{ route('owners.index') }}"
@@ -13,8 +16,6 @@
             Volver a Propietarios
         </a>
 
-        {{-- Edit and Delete buttons --}}
-        {{--
         <a href="{{ route('owners.edit', $owner) }}"
            class="inline-flex items-center px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors">
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -30,8 +31,13 @@
             </svg>
             Eliminar
         </button>
-        --}}
     </div>
+
+    {{-- Hidden Delete Form --}}
+    <form id="delete-form" action="{{ route('owners.destroy', $owner) }}" method="POST" class="hidden">
+        @csrf
+        @method('DELETE')
+    </form>
 
     {{-- Owner Profile Card --}}
     <div class="bg-white rounded-lg shadow-md p-8 mb-8">
@@ -48,7 +54,7 @@
             </div>
         </div>
 
-        {{-- Information Sections --}}
+        {{-- Owner Information Grid --}}
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
             {{-- Personal Information --}}
@@ -123,12 +129,21 @@
 
     {{-- Properties Section --}}
     <div class="bg-white rounded-lg shadow-md p-8">
-        <h2 class="text-2xl font-semibold text-slate-900 mb-6 flex items-center gap-2">
-            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
-            </svg>
-            Propiedades ({{ $owner->properties->count() }})
-        </h2>
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-semibold text-slate-900 mb-6 flex items-center gap-2">
+                <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                </svg>
+                Propiedades ({{ $owner->properties->count() }})
+            </h2>
+            <a href="{{ route('properties.create', ['owner_id' => $owner->id]) }}"
+                   class="inline-flex items-center px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                    </svg>
+                    Crear Nueva Propiedad
+            </a>
+        </div>
 
         @forelse($owner->properties as $property)
             @if($loop->first)
@@ -194,20 +209,35 @@
                     </svg>
                 </div>
 
-                <p class="text-slate-600 italic">
+                <p class="text-slate-600 italic mb-4">
                     Este propietario no tiene propiedades registradas
                 </p>
 
-                {{--
                 <a href="{{ route('properties.create', ['owner_id' => $owner->id]) }}"
-                   class="inline-flex items-center mt-4 px-4 py-2 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors">
+                   class="inline-flex items-center px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                     </svg>
-                    Crear Propiedad
+                    Crear Primera Propiedad
                 </a>
-                --}}
             </div>
         @endforelse
     </div>
+
+{{-- Delete Confirmation Script --}}
+<script>
+function confirmDelete() {
+    const ownerName = "{{ $owner->name }}";
+    const propertiesCount = {{ $owner->properties()->count() }};
+
+    if (propertiesCount > 0) {
+        alert(`No se puede eliminar este propietario porque tiene ${propertiesCount} propiedad${propertiesCount === 1 ? '' : 'es'} registrada${propertiesCount === 1 ? '' : 's'}.\n\nPor favor, elimine o reasigne las propiedades primero.`);
+        return false;
+    }
+
+    if (confirm(`¿Estás seguro de que deseas eliminar a "${ownerName}"?\n\nEsta acción no se puede deshacer.`)) {
+        document.getElementById('delete-form').submit();
+    }
+}
+</script>
 @endsection
