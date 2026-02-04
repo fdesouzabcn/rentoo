@@ -1,59 +1,234 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 🏠 Rentoo
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Rentoo is a **property rental management system** developed with **PHP/Laravel-Blade/Tailwind CSS**, designed specifically for the Spanish rental market.
 
-## About Laravel
+The project enables property owners to manage their rental properties and contracts, with full compliance to Spanish legal requirements including LAU (Ley de Arrendamientos Urbanos) and Catalunya-specific regulations.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Project Description
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+**Rentoo** allows property owners to register, manage their rental properties, and create legally compliant rental contracts with complete tenant information.
 
-## Learning Laravel
+The system tracks:
+- Property owners with DNI/NIE/TIE validation
+- Rental properties with cadastral references and energy certificates
+- Rental contracts with dual tenant support and IRPA compliance
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+The project has been developed as an **academic project** for the Barcelona Activa Fullstack PHP bootcamp, with emphasis on:
+- MVC architecture
+- Database relational design
+- Spanish legal compliance (LAU, IRPA, energy certificates)
+- Professional Git workflow with GitFlow
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Technologies and Tools Used
 
-## Laravel Sponsors
+- **PHP 8.5.0**
+- **Laravel 12**
+- **MariaDB 10.4.32** (via XAMPP)
+- **Blade Templates**
+- **Tailwind CSS**
+- **Vite**
+- **Thunder Client** (API testing)
+- **Git & GitFlow** (version control)
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
 
-### Premium Partners
+## Features
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+### Property Owner Management
+- Complete CRUD operations for property owners
+- DNI/NIE/TIE validation with Spanish regex patterns
+- Contact information management
+- View all properties owned by each owner
 
-## Contributing
+### Property Management
+- Complete CRUD operations for rental properties
+- Owner assignment with dynamic information display
+- Cadastral reference validation (20-character format)
+- Energy certificate tracking (A-G rating scale)
+- Built area and rooms specification
+- Financial information management
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
 
-## Code of Conduct
+### Contract Management
+- Complete CRUD operations for rental contracts
+- Property selection with automatic owner information display
+- Dual tenant support (Tenant 1 and Tenant 2)
+- DNI/NIE validation for all tenants
+- Contract dates with validation
+- Financial information management
+- IRPA zone classification (tensioned/non-tensioned areas)
+- Contract status
+- Browser-based contract printing (PDF generation coming in Level 3)
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
 
-## Security Vulnerabilities
+## Application Flow
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+1. Owner registers in the system with validated DNI/NIE
+2. Owner adds rental properties with legal requirements
+3. Owner creates a new contract in DRAFT status
+4. Owner selects property
+5. Owner adds tenant information with validated DNI/NIE/TIE
+6. Owner completes contract details
+7. Owner finalizes the contract
+8. Owner can print contracts directly from browser
 
-## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## Database Design
+
+The database follows a **relational design** with three main entities:
+
+- **owners** → Property owners (UUID primary key)
+  - Personal information (name, surnames)
+  - DNI/NIE with Spanish validation
+  - Contact information (phone, email)
+  
+- **properties** → Rental properties (UUID primary key)
+  - Address details (street, number, floor, door, postal code, city, province)
+  - Cadastral reference (20 characters)
+  - Energy certificate (A-G rating)
+  - Built area and room count
+  - IRPA zone classification
+  - Belongs to one owner (foreign key with cascade delete protection)
+  
+- **contracts** → Rental contracts (UUID primary key)
+  - Belongs to one property (foreign key with cascade delete protection)
+  - Dual tenant information (Tenant 1 & Tenant 2)
+  - Contract dates (start and end)
+  - Financial information (monthly rent, deposit)
+  - Status enum (DRAFT or FINALIZED)
+
+### Key Relationships
+- **owners → properties** (1:many) - One owner can have multiple properties
+- **properties → contracts** (1:many) - One property can have multiple contracts over time
+- Cascade delete protection ensures data integrity
+
+
+## Project Structure
+
+* **app/**
+    * **Http/**
+        * **Controllers/**
+            * `OwnerController.php`
+            * `PropertyController.php`
+            * `ContractController.php`
+    * **Models/**
+        * `Owner.php`
+        * `Property.php`
+        * `Contract.php`
+* **database/**
+    * **factories/**
+        * `ContractFactory.php`
+        * `OwnerFactory.php`
+        * `PropertyFactory.php`
+    * **migrations/**
+        * `2026_01_22_131239_create_owners_table.php`
+        * `2026_01_22_134841_create_properties_table.php`
+        * `2026_01_22_185023_create_contracts_table.php`
+    * **seeders/**
+        * `DatabaseSeeder.php`
+* **public/**
+    * `index.php`
+* **resources/**
+    * **views/**
+        * **owners/**
+            * `index.blade.php`
+            * `show.blade.php`
+            * `create.blade.php`
+            * `edit.blade.php`
+        * **properties/**
+            * `index.blade.php`
+            * `show.blade.php`
+            * `create.blade.php`
+            * `edit.blade.php`
+        * **contracts/**
+            * `index.blade.php`
+            * `show.blade.php`
+            * `create.blade.php`
+            * `edit.blade.php`
+        * **layouts/**
+            * `app.blade.php`
+        * **components/**
+        * `welcome.blade.php`
+* **routes/**
+    * `web.php`
+    * `api.php`
+* **storage/**
+
+
+## Installation
+
+### Prerequisites
+- PHP 8.5.0 or higher
+- Composer 2.8.12 or higher
+- Node.js v22.19.0 and NPM 10.9.3
+- MariaDB 10.4.32 or higher (or MySQL)
+- Git
+
+### Installation Steps
+
+**1. Clone the repository**
+```bash
+git clone https://github.com/fdesouzabcn/rentoo.git
+cd rentoo
+```
+
+**2. Install PHP dependencies**
+```bash
+composer install
+```
+
+**3. Install Frontend dependencies**
+```bash
+npm install
+```
+
+**4. Create environment file**
+```bash
+cp .env.example .env
+```
+
+**5. Configure database**
+Edit `.env` file with your database credentials:
+```
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=rentoo
+DB_USERNAME=your_username
+DB_PASSWORD=your_password
+```
+
+**6. Generate application key**
+```bash
+php artisan key:generate
+```
+
+**7. Run migrations**
+```bash
+php artisan migrate
+```
+
+**8. Enable frontend assets**
+```bash
+npm run dev
+```
+
+**9. Start Laravel development server**
+```bash
+php artisan serve
+```
+
+**10. Access the application**
+Open your browser and navigate to:
+```
+http://127.0.0.1:8000
+```
+
+## Author
+
+**Flavio de Souza**  
+Repository: [https://github.com/fdesouzabcn/rentoo](https://github.com/fdesouzabcn/rentoo)
+
+## Acknowledgments
+
+- Barcelona Activa Fullstack PHP Bootcamp  (2025/2026)
