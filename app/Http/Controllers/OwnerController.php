@@ -9,43 +9,27 @@ use Illuminate\Http\Request;
 
 class OwnerController extends Controller
 {
-    /**
-     * Display a listing of the resource (all owners in DB).
-     */
     public function index()
     {
-        //Find all owners from database, ordered by name, with properties count
         $owners = Owner::withCount('properties')
             ->orderBy('name', 'asc')
             ->get();
-
-        // API route - return JSON
         if (request()->is('api/*')) {
             return response()->json([
                 'total' => $owners->count(),
                 'owners' => $owners
             ]);
         }
-
-        // Web route - return Blade view
         return view('owners.index', compact('owners'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        // Web route - return Blade view
         return view('owners.create');
     }
 
-    /**
-     * Store a newly created resource (POST) in storage.
-     */
     public function store(Request $request)
     {
-        // Validate incoming request data
         $validated = $request->validate([
             'name' => 'required|string|max:100',
             'dni' => [
@@ -61,50 +45,30 @@ class OwnerController extends Controller
             'postal_code' => 'required|string|max:10',
             'province' => 'required|string|max:100',
         ]);
-
-        // Create the owner (DNI will be auto-uppercased by model mutator)
         $owner = Owner::create($validated);
-
-        // Redirect to show page with success message
         return redirect()->route('owners.show', $owner)
         ->with('success', 'Propietario creado exitosamente');
     }
 
-    /**
-     * Display the specified resource (a specific owner data).
-     */
     public function show(Owner $owner)
     {
-        // Load owners properties
         $owner->load ('properties');
-
-        // API route - return JSON
         if (request()->is('api/*')) {
             return response()->json([
                 'owner' => $owner,
                 'properties_count' => $owner->properties->count()
             ]);
         }
-        // Web route - return Blade view
         return view('owners.show', compact('owner'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Owner $owner)
 {
-    // Web route - return Blade view
     return view('owners.edit', compact('owner'));
 }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, Owner $owner)
     {
-        // Validate incoming request data
-        // Note: unique validation must ignore current owner's record
         $validated = $request->validate([
             'name' => 'required|string|max:100',
             'dni' => [
@@ -120,34 +84,22 @@ class OwnerController extends Controller
             'postal_code' => 'required|string|max:10',
             'province' => 'required|string|max:100',
         ]);
-
-        // Update the owner (DNI will be auto-uppercased by model mutator)
         $owner->update($validated);
-
-        // Redirect to show page with success message
         return redirect()->route('owners.show', $owner)
             ->with('success', 'Propietario actualizado exitosamente');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Owner $owner)
     {
-        // Check if owner has properties (cascade delete protection)
         $propertiesCount = $owner->properties()->count();
-
         if ($propertiesCount > 0) {
             return redirect()->back()
                 ->with('error', "No se puede eliminar este propietario porque tiene {$propertiesCount} " .
                        ($propertiesCount === 1 ? 'propiedad' : 'propiedades') . " registrada" .
                        ($propertiesCount === 1 ? '' : 's') . ". Por favor, elimínelas primero.");
         }
-
-        // Safe to delete - no dependent records
         $ownerName = $owner->name;
         $owner->delete();
-
         return redirect()->route('owners.index')
             ->with('success', "Propietario '{$ownerName}' eliminado exitosamente");
     }

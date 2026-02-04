@@ -1,36 +1,3 @@
-{{--
-    Feature Card Component
-
-    Usage:
-    <x-feature-card
-        title="Propietarios"
-        description="Gestiona la información completa..."
-        color="green"
-        route="owners.index"
-        button-text="Ver Propietarios">
-
-        <x-slot name="icon">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="..."/>
-        </x-slot>
-
-        <x-slot name="checklist">
-            <x-check-list-item color="green">Item 1</x-check-list-item>
-            <x-check-list-item color="green">Item 2</x-check-list-item>
-        </x-slot>
-    </x-feature-card>
-
-    Props:
-    - title: Card title (required)
-    - description: Card description (required)
-    - color: green|blue|purple (default: blue)
-    - route: Laravel route name (required)
-    - buttonText: Button text (default: "Ver más")
-
-    Slots:
-    - icon: SVG path element only (component provides the <svg> wrapper)
-    - checklist: List of check items
---}}
-
 @props([
     'title',
     'description',

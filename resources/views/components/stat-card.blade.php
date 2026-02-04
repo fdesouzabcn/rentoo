@@ -1,18 +1,3 @@
-{{--
-    Stat Card Component
-
-    Usage:
-    <x-stat-card
-        value="65+"
-        label="Propietarios Registrados"
-        color="green" />
-
-    Props:
-    - value: The statistic number/value (required)
-    - label: Descriptive label below the number (required)
-    - color: green|blue|purple|amber|red (default: blue)
---}}
-
 @props([
     'value',
     'label',
@@ -20,7 +5,6 @@
 ])
 
 @php
-    // Map color names to Tailwind text color classes
     $colorClasses = [
         'green' => 'text-green-600',
         'blue' => 'text-blue-600',

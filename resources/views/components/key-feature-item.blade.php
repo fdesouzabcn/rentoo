@@ -1,26 +1,3 @@
-{{--
-    Key Feature Item Component
-
-    Usage:
-    <x-key-feature-item
-        title="Cumplimiento Legal"
-        description="Validación automática de documentos..."
-        color="blue">
-
-        <x-slot name="icon">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="..."/>
-        </x-slot>
-    </x-key-feature-item>
-
-    Props:
-    - title: Feature title (required)
-    - description: Feature description (required)
-    - color: blue|green|purple|amber (default: blue)
-
-    Slots:
-    - icon: SVG path element only (component provides the <svg> wrapper)
---}}
-
 @props([
     'title',
     'description',
@@ -28,7 +5,6 @@
 ])
 
 @php
-    // Map color names to Tailwind classes
     $colorClasses = [
         'blue' => 'bg-blue-600',
         'green' => 'bg-green-600',

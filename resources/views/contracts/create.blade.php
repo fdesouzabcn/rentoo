@@ -127,7 +127,6 @@
                         @error('end_date')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
-                        <p class="mt-1 text-xs text-slate-500">Dejar vacío para contrato indefinido</p>
                     </div>
                 </div>
             </div>
