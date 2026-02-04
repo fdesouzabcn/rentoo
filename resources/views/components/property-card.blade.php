@@ -1,21 +1,3 @@
-{{--
-    Property Card Component
-
-    Usage:
-    <x-property-card :property="$property" />
-
-    Props:
-    - property: Property model with owner relationship
-
-    Displays:
-    - Property address
-    - City and province
-    - Owner name
-    - Surface area, bedrooms, bathrooms
-    - Contracts count
-    - "Ver Detalles" button linking to property show page
---}}
-
 @props(['property'])
 
 <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 p-6">

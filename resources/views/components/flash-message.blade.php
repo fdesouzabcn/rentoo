@@ -1,13 +1,3 @@
-{{--
-    Flash Message Component
-
-    Displays success/error messages from session flash data
-    Auto-dismisses after 5 seconds
-
-    Usage in views:
-    <x-flash-message />
---}}
-
 @if(session('success') || session('error'))
     <div id="flash-message"
          class="mb-6 rounded-lg shadow-lg p-4 flex items-start justify-between

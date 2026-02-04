@@ -1,20 +1,3 @@
-{{--
-    Owner Card Component
-
-    Usage:
-    <x-owner-card :owner="$owner" />
-
-    Props:
-    - owner: Owner model instance (required)
-
-    Displays:
-    - Owner name
-    - DNI/NIE/TIE
-    - City
-    - Property count
-    - "Ver Detalles" button linking to owner show page
---}}
-
 @props(['owner'])
 
 <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 p-6">

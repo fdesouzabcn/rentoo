@@ -1,22 +1,6 @@
-{{--
-    Status Badge Component
-
-    Usage:
-    <x-status-badge status="DRAFT" />
-    <x-status-badge status="FINALIZED" />
-
-    Props:
-    - status: Contract status (DRAFT|FINALIZED) (required)
-
-    Displays:
-    - Color-coded badge based on status
-    - Translated label to Spanish
---}}
-
 @props(['status'])
 
 @php
-    // Map status to colors and ES labels
     $statusConfig = [
         'draft' => [
             'bg' => 'bg-yellow-100',

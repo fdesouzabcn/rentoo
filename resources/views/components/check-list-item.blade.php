@@ -1,27 +1,12 @@
-{{--
-    Check List Item Component
-
-    Usage:
-    <x-check-list-item color="blue">
-        Validación de DNI/NIE/TIE español
-    </x-check-list-item>
-
-    Props:
-    - color: green|blue|purple (default: blue)
-    - $slot: The text content
---}}
-
 @props(['color' => 'blue'])
 
 @php
-    // Map color names to Tailwind classes
     $colorClasses = [
         'green' => 'text-green-600',
         'blue' => 'text-blue-600',
         'purple' => 'text-purple-600',
     ];
 
-    // Get the color class or default to blue
     $colorClass = $colorClasses[$color] ?? $colorClasses['blue'];
 @endphp
 

@@ -15,7 +15,7 @@
             Bienvenido a Rentoo
         </h1>
 
-        <p class="text-xl text-slate-600 max-w-2xl mx-auto mb-8">
+        <p class="text-xl text-slate-600 max-w-fit mx-auto mb-8">
             Sistema integral de gestión de alquileres residenciales para propietarios en España
         </p>
 
